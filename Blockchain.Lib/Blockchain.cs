@@ -8,7 +8,7 @@ namespace Blockchain.Lib
 {
     public class Blockchain : IDisposable
     {
-        private const string PoWResult = "0000";
+        private string PoWResult;
         private readonly Guid node_identifier = Guid.NewGuid();
 
         public List<Block> Chain { get; private set; }
@@ -24,7 +24,7 @@ namespace Blockchain.Lib
             }
         }
 
-        public Blockchain()
+        public Blockchain(string startingHashStringToCheckForValidBlock = "000")
         {
             Chain = new List<Block>();
             CurrentTransactions = new List<Transaction>();
@@ -32,6 +32,7 @@ namespace Blockchain.Lib
             this.NewBlock(100, "1");
 
             algorithm = SHA256.Create();
+            PoWResult = startingHashStringToCheckForValidBlock;
         }
 
 
@@ -48,7 +49,7 @@ namespace Blockchain.Lib
         }
 
         /// <summary>
-        /// Mines the new blocc using PoW algorithm
+        /// Mines the new block using PoW
         /// </summary>
         /// <returns>Returns the mined block</returns>
         public Block MineNewBlock()

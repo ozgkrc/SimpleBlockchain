@@ -1,6 +1,7 @@
 using Blockchain.Lib;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 
 namespace Blockchain.Tests
 {
@@ -22,27 +23,35 @@ namespace Blockchain.Tests
         }
 
         [TestMethod]
-        public void TestHashesOfTheIdenticalBlocks()
+        public void ConsensusAlgorithmForSameChainsTest()
         {
-            Block b1 = new Block
-            {
-                Index = 0,
-                PreviousHash = "asdasdasd",
-                Proof = 1,
-                Timestamp = DateTime.MinValue,
-                Transactions = new System.Collections.Generic.List<Transaction>()
-            };
+            Lib.Blockchain blockchain1 = new Lib.Blockchain();
+            Lib.Blockchain blockchain2 = new Lib.Blockchain();
+            Lib.Blockchain blockchain3 = new Lib.Blockchain();
 
-            Block b2 = new Block
-            {
-                PreviousHash = "asdasdasd",
-                Timestamp = DateTime.MinValue,
-                Proof = 1,
-                Transactions = new System.Collections.Generic.List<Transaction>(),
-                Index = 0
-            };
+            List<List<Block>> neighbourChains = new List<List<Block>>();
+            neighbourChains.Add(blockchain3.Chain);
+            neighbourChains.Add(blockchain2.Chain);
 
-            Assert.AreEqual(Blockchain.Lib.Blockchain.Hash(b1), Blockchain.Lib.Blockchain.Hash(b2));
+            Assert.IsFalse(blockchain1.ResolveConflict(neighbourChains));
+        }
+
+        [TestMethod]
+        public void ConsensusAlgorithmForDifferentChainsTest()
+        {
+            string hashToCompare = "0";//determines the difficulty of mining
+            Lib.Blockchain blockchain1 = new Lib.Blockchain(hashToCompare);
+            Lib.Blockchain blockchain2 = new Lib.Blockchain(hashToCompare);
+            Lib.Blockchain blockchain3 = new Lib.Blockchain(hashToCompare);
+
+            blockchain2.MineNewBlock();
+
+            List<List<Block>> neighbourChains = new List<List<Block>>();
+            neighbourChains.Add(blockchain3.Chain);
+            neighbourChains.Add(blockchain2.Chain);
+
+            Assert.IsTrue(blockchain1.ResolveConflict(neighbourChains));
+            Assert.IsTrue(blockchain1.Chain.Count == 2);
         }
     }
 }
